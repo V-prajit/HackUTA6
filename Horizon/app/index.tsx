@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, View, Text, ActivityIndicator, Alert, Dimensions } from "react-native";
+import {
+  StyleSheet,
+  View,
+  ActivityIndicator,
+  Alert,
+  Dimensions,
+} from "react-native";
 import * as Location from "expo-location";
 import axios from "axios";
 import MapView, { Marker } from "react-native-maps";
 import Footer from "@/components/Footer";
-import ProfilePage from "@/components/ProfilePage";
-import RegisterPage from "@/components/RegisterPage";
 
-// Interfaces for data structures
 interface NearbyLocation {
   id?: string;
   osmId?: string;
@@ -38,13 +41,12 @@ interface Region {
   longitudeDelta: number;
 }
 
-const Index: React.FC = () => {
+export default function Index() {
   const [location, setLocation] = useState<LocationObject | null>(null);
   const [disasters, setDisasters] = useState<Disaster[]>([]);
   const [loading, setLoading] = useState(true);
   const [region, setRegion] = useState<Region | undefined>(undefined);
   const [nearbyLocations, setNearbyLocations] = useState<NearbyLocation[]>([]);
-  const [currentPage, setCurrentPage] = useState<"map" | "profile" | "register">("map");
 
   useEffect(() => {
     getLocation();
@@ -52,27 +54,34 @@ const Index: React.FC = () => {
 
   const getLocation = async () => {
     setLoading(true);
+
     try {
-      const { status } = await Location.requestForegroundPermissionsAsync();
+      let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
         Alert.alert("Permission to access location was denied");
         setLoading(false);
         return;
       }
 
-      const userLocation = await Location.getCurrentPositionAsync({});
+      let userLocation = await Location.getCurrentPositionAsync({});
       setLocation(userLocation);
 
-      const regionData = {
+      setRegion({
         latitude: userLocation.coords.latitude,
         longitude: userLocation.coords.longitude,
         latitudeDelta: 0.0922,
         longitudeDelta: 0.0421,
-      };
-
-      setRegion(regionData);
-      fetchNearbyLocations(userLocation.coords.latitude, userLocation.coords.longitude);
-      fetchDisasterData(userLocation.coords.latitude, userLocation.coords.longitude);
+      });
+      if (userLocation) {
+        fetchNearbyLocations(
+          userLocation.coords.latitude,
+          userLocation.coords.longitude
+        );
+      }
+      fetchDisasterData(
+        userLocation.coords.latitude,
+        userLocation.coords.longitude
+      );
     } catch (error) {
       console.error("Error getting location:", error);
       Alert.alert("Error getting location. Please try again later.");
@@ -88,13 +97,14 @@ const Index: React.FC = () => {
         {
           latitude,
           longitude,
-          radius: 50000, 
+          radius: 50000,
         }
       );
       setDisasters(response.data || []);
     } catch (error) {
       console.error("Error fetching disaster data:", error);
       Alert.alert("Error fetching disaster data. Please try again later.");
+      setDisasters([]);
     }
   };
 
@@ -113,7 +123,7 @@ const Index: React.FC = () => {
     }
   };
 
-  const getMarkerType = (type: string): string => {
+  const getMarkerType = (type: string) => {
     switch (type) {
       case "hospital":
         return "Hospital";
@@ -126,7 +136,7 @@ const Index: React.FC = () => {
     }
   };
 
-  const getMarkerColor = (type: string): string => {
+  const getMarkerColor = (type: string) => {
     switch (type) {
       case "hospital":
         return "red";
@@ -139,70 +149,6 @@ const Index: React.FC = () => {
     }
   };
 
-  const renderPage = () => {
-    return (
-      <>
-        {currentPage === "map" && (
-          <View style={styles.mapContainer}>
-            {loading ? (
-              <ActivityIndicator size="large" color="#0000ff" />
-            ) : (
-              region && (
-                <MapView style={styles.map} region={region}>
-                  {disasters.map((disaster, index) => (
-                    <Marker
-                      key={`disaster-${index}`}
-                      coordinate={{
-                        latitude: disaster.coordinates[1],
-                        longitude: disaster.coordinates[0],
-                      }}
-                      title={disaster.title}
-                      description={`Type: ${disaster.type}, Date: ${new Date(
-                        disaster.date
-                      ).toLocaleString()}`}
-                      pinColor="yellow"
-                    />
-                  ))}
-                  {nearbyLocations.map((location) => (
-                    <Marker
-                      key={`location-${location.id}`}
-                      coordinate={{
-                        latitude: location.lat,
-                        longitude: location.lon,
-                      }}
-                      title={location.name}
-                      description={`Service: ${getMarkerType(location.type)}`}
-                      pinColor={getMarkerColor(location.type)}
-                    />
-                  ))}
-                </MapView>
-              )
-            )}
-            <Footer goToRegister={() => setCurrentPage("register")} />
-          </View>
-        )}
-
-        {currentPage === "profile" && (
-          <View style={styles.pageContainer}>
-            <ProfilePage
-              goToRegister={() => setCurrentPage("register")}
-              goBackToMap={() => setCurrentPage("map")}
-            />
-          </View>
-        )}
-
-        {currentPage === "register" && (
-          <View style={styles.pageContainer}>
-            <RegisterPage goBackToProfile={() => setCurrentPage("profile")} />
-          </View>
-        )}
-      </>
-    );
-  };
-
-  return renderPage();
-};
-=======
   return (
     <View style={styles.container}>
       {loading ? (
@@ -245,21 +191,11 @@ const Index: React.FC = () => {
 }
 
 const styles = StyleSheet.create({
-  mapContainer: {
+  container: {
     flex: 1,
   },
   map: {
     width: "100%",
     height: Dimensions.get("window").height - 80,
   },
-  pageContainer: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.8)",
-  },
 });
-
-export default Index;
