@@ -5,3 +5,4 @@
 /backend/node_modules
 /streamlit/venv
 /backend-cp
+.DS_Store
