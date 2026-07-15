@@ -1,4 +1,4 @@
-# Horizon — Disaster Response and Emergency Management
+# Horizon: Disaster Response and Emergency Management
 
 **Status: Hackathon project** (built at HackUTA 6, Oct 12-13 2024, University of Texas at Arlington)
 
@@ -34,9 +34,9 @@ flowchart LR
 
 ## Layout
 
-- `Horizon/` — the React Native mobile app (`app/`, `components/`, `assets/`)
-- `backend/` — Express API (`routes/`, `models/`, `middleware/`, `utils/`)
-- `streamlit/` — Python admin dashboard
+- `Horizon/`: the React Native mobile app (`app/`, `components/`, `assets/`)
+- `backend/`: Express API (`routes/`, `models/`, `middleware/`, `utils/`)
+- `streamlit/`: Python admin dashboard
 
 ## Running it locally
 
@@ -59,4 +59,4 @@ This is hackathon-quality code: built in 24 hours, not maintained since, and not
 
 ## License
 
-No license file yet — treat as all-rights-reserved until one is added.
+No license file yet. Treat as all-rights-reserved until one is added.
